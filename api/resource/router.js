@@ -4,12 +4,15 @@ const Resources = require("./model");
 
 const router = express.Router();
 
+router.get("/", async (req, res, next) => {
+  const resources = await Resources.getAll();
+  res.status(200).json(resources);
+});
+
 router.post("/", async (req, res, next) => {
   try {
-    await Resources.insert(req.body);
-    res.status(201).json({
-      message: "Resource successfully created",
-    });
+    const newResource = await Resources.insert(req.body);
+    res.status(201).json(newResource);
   } catch (err) {
     next();
   }
