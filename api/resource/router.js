@@ -1,30 +1,35 @@
-// build your `/api/resources` router here
 const express = require("express");
 const Resources = require("./model");
+const db = require("./../../data/dbConfig");
 
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
-  const resources = await Resources.getAll();
-  res.status(200).json(resources);
-});
-
-router.post("/", async (req, res, next) => {
   try {
-    const newResource = await Resources.insert(req.body);
-    res.status(201).json(newResource);
+    const resources = await Resources.getAll();
+    res.status(200).json(resources);
   } catch (err) {
     next();
   }
 });
 
-// eslint-disable-next-line
-router.use((err, req, res, next) => {
-  res.status(err.status || 500).json({
-    custom: "Something went wrong with the resource router.",
-    message: err.message,
-    stack: err.stack,
-  });
+router.post("/", async (req, res, next) => {
+  try {
+    const existingName = await db("resources")
+      .where("resource_name", req.body.resource_name)
+      .first();
+    if (!existingName) {
+      const newResource = await Resources.insert(req.body);
+      res.status(201).json(newResource);
+    } else {
+      next({
+        status: 400,
+        message: "Resource name is already taken",
+      });
+    }
+  } catch (err) {
+    next();
+  }
 });
 
 module.exports = router;
