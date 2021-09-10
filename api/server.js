@@ -19,10 +19,4 @@ server.use((err, req, res, next) => {
   });
 });
 
-server.use("*", (req, res) => {
-  res.json({
-    message: "you have been caught by the catchall",
-  });
-});
-
 module.exports = server;
